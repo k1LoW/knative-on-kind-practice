@@ -3,12 +3,25 @@ export METALLB_VERSION=v0.8.3
 export ISTIO_VERSION=1.4.2
 export KNATIVE_VERSION=v0.11.0
 
-test_create_knative_cluster: install_requirements create_cluster install_metallb install_istio install_knative_serving deploy_app port_forward hello_world
+test_for_linux: install_requirements_for_linux create_cluster install_metallb install_istio install_knative_serving deploy_app port_forward hello_world
+test_for_mac: install_requirements_for_mac create_cluster install_metallb install_istio install_knative_serving deploy_app port_forward hello_world
 
-install_requirements:
+install_requirements_for_linux:
+	curl -Lo ./kind https://github.com/kubernetes-sigs/kind/releases/download/v0.6.1/kind-$$(uname)-amd64
+	chmod +x ./kind
+	sudo mv ./kind /usr/local/bin/kind
+	sudo apt-get update && sudo apt-get install -y apt-transport-https
+	curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
+	echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee -a /etc/apt/sources.list.d/kubernetes.list
+	sudo apt-get update
+	sudo apt-get install -y kubectl
+	curl -LO https://git.io/get_helm.sh | bash
+
+install_requirements_for_mac:
 	brew install kind kubernetes-cli helm@2
 
 create_cluster:
+	docker ps
 	kind create cluster --name knative --image kindest/node:${K8S_VERSION} --config kind-config.yaml
 	kubectl config use-context kind-knative
 	kubectl config current-context
@@ -53,10 +66,11 @@ deploy_app:
 	@while kubectl get ksvc helloworld-go | grep -v NAME | grep -v True -c >/dev/null; do sleep 5; echo "waiting"; done;
 
 port_forward:
-	kubectl port-forward svc/istio-ingressgateway -n istio-system 8880:80 &
+	(kubectl port-forward svc/istio-ingressgateway -n istio-system 38880:80 &)
+	sleep 3
 
 hello_world:
-	curl -sL -H "Host: helloworld-go.default.example.com" http://127.0.0.1:8880 | grep Hello
+	curl -sL -H "Host: helloworld-go.default.example.com" http://127.0.0.1:38880 | grep Hello
 
 destroy_cluster:
 	kind delete cluster --name knative
