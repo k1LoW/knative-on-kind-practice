@@ -3,9 +3,9 @@ name: build
 on: push
 
 jobs:
-  test-create-knative-cluster:
-    runs-on: macos-latest
+  test-for-linux:
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
       - name: Test
-        run: make test_create_knative_cluster
+        run: make test_for_linux
