@@ -1,5 +1,11 @@
 # Knative on kind on Docker Desktop on Mac practice
 
+## Install requirements
+
+``` console
+$ brew install kind kubernetes-cli helm@2
+```
+
 ## Create Kubernetes cluster on kind
 
 ``` console
@@ -36,20 +42,7 @@ https://metallb.universe.tf/installation/#installation-with-kubernetes-manifests
 ``` console
 $ export METALLB_VERSION=v0.8.3
 $ kubectl apply -f https://raw.githubusercontent.com/google/metallb/${METALLB_VERSION}/manifests/metallb.yaml
-$ kubectl apply -f - -o yaml << 'EOF'
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  namespace: metallb-system
-  name: config
-data:
-  config: |
-    address-pools:
-    - name: default
-      protocol: layer2
-      addresses:
-      - 192.168.1.240-192.168.1.250
-EOF
+$ kubectl apply -f metallb-config.yaml
 ```
 
 ## Install Istio for Knative
@@ -60,14 +53,7 @@ https://knative.dev/docs/install/installing-istio/
 $ export ISTIO_VERSION=1.4.2
 $ curl -L https://istio.io/downloadIstio | sh -
 $ for i in istio-${ISTIO_VERSION}/install/kubernetes/helm/istio-init/files/crd*yaml; do kubectl apply -f $i; done
-$ cat <<EOF | kubectl apply -f -
-apiVersion: v1
-kind: Namespace
-metadata:
- name: istio-system
- labels:
-   istio-injection: disabled
-EOF
+$ kubectl apply -f istio-namespace.yaml
 $ helm template --namespace=istio-system \
   --set prometheus.enabled=false \
   --set mixer.enabled=false \
