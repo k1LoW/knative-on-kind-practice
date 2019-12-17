@@ -1,4 +1,4 @@
-# Knative on kind practice
+# Knative on kind practice [![Build Status](https://github.com/k1LoW/knative-on-kind-practice/workflows/build/badge.svg)](https://github.com/k1LoW/knative-on-kind-practice/actions)
 
 ## Install requirements
 
