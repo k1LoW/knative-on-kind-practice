@@ -1,9 +1,26 @@
-# Knative on kind on Docker Desktop on Mac practice
+# Knative on kind practice
 
 ## Install requirements
 
+**Knative on kind on Docker Desktop on Mac:**
+
 ``` console
 $ brew install kind kubernetes-cli helm@2
+```
+
+**Knative on kind on Linux:**
+
+``` console
+$ export KIND_VERSION=v0.6.1
+$ curl -Lo ./kind https://github.com/kubernetes-sigs/kind/releases/download/${KIND_VERSION}/kind-$(uname)-amd64
+$ chmod +x ./kind
+$ sudo mv ./kind /usr/local/bin/kind
+$ sudo apt-get update && sudo apt-get install -y apt-transport-https
+$ curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
+$ echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee -a /etc/apt/sources.list.d/kubernetes.list
+$ sudo apt-get update
+$ sudo apt-get install -y kubectl
+$ curl -LO https://git.io/get_helm.sh | bash
 ```
 
 ## Create Kubernetes cluster on kind

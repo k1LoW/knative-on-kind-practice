@@ -1,13 +1,15 @@
-export K8S_VERSION=v1.16.3
-export METALLB_VERSION=v0.8.3
-export ISTIO_VERSION=1.4.2
-export KNATIVE_VERSION=v0.11.0
+export KIND_VERSION ?=v0.6.1
+export K8S_VERSION ?=v1.16.3
+export METALLB_VERSION ?=v0.8.3
+export ISTIO_VERSION ?=1.4.2
+export KNATIVE_VERSION ?=v0.11.0
+export FOWARDING_PORT ?=38880
 
 test_for_linux: install_requirements_for_linux create_cluster install_metallb install_istio install_knative_serving deploy_app port_forward hello_world
 test_for_mac: install_requirements_for_mac create_cluster install_metallb install_istio install_knative_serving deploy_app port_forward hello_world
 
 install_requirements_for_linux:
-	curl -Lo ./kind https://github.com/kubernetes-sigs/kind/releases/download/v0.6.1/kind-$$(uname)-amd64
+	curl -Lo ./kind https://github.com/kubernetes-sigs/kind/releases/download/${KIND_VERSION}/kind-$$(uname)-amd64
 	chmod +x ./kind
 	sudo mv ./kind /usr/local/bin/kind
 	sudo apt-get update && sudo apt-get install -y apt-transport-https
@@ -65,11 +67,11 @@ deploy_app:
 	@while kubectl get ksvc helloworld-go | grep -v NAME | grep -v True -c >/dev/null; do sleep 5; echo "waiting"; done;
 
 port_forward:
-	(kubectl port-forward svc/istio-ingressgateway -n istio-system 38880:80 &)
+	(kubectl port-forward svc/istio-ingressgateway -n istio-system ${FOWARDING_PORT}:80 &)
 	sleep 3
 
 hello_world:
-	curl -sL -H "Host: helloworld-go.default.example.com" http://127.0.0.1:38880 | grep Hello
+	curl -sL -H "Host: helloworld-go.default.example.com" http://127.0.0.1:${FOWARDING_PORT} | grep Hello
 
 destroy_cluster:
 	kind delete cluster --name knative
