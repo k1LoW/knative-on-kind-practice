@@ -65,10 +65,11 @@ deploy_app:
 	@while kubectl get ksvc helloworld-go | grep -v NAME | grep -v True -c >/dev/null; do sleep 5; echo "waiting"; done;
 
 port_forward:
-	$(shell kubectl port-forward svc/istio-ingressgateway -n istio-system 8880:80 &)
+	(kubectl port-forward svc/istio-ingressgateway -n istio-system 38880:80 &)
+	sleep 3
 
 hello_world:
-	curl -sL -H "Host: helloworld-go.default.example.com" http://127.0.0.1:8880 | grep Hello
+	curl -sL -H "Host: helloworld-go.default.example.com" http://127.0.0.1:38880 | grep Hello
 
 destroy_cluster:
 	kind delete cluster --name knative
